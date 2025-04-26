@@ -62,3 +62,19 @@ mainClass = "Main"
 build = ["javac", "-classpath", ".:target/dependency/*", "-d", ".", "$(find . -type f -name '*.java')"]
 run = ["java", "-classpath", ".:target/dependency/*", "Main"]
 deploymentTarget = "cloudrun"
+
+[workflows]
+runButton = "Run Java"
+
+[[workflows.workflow]]
+name = "Run Java"
+author = 40179289
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "mvn clean compile"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "mvn exec:java -Dexec.mainClass=\"com.minecraft.bot.Main\""
