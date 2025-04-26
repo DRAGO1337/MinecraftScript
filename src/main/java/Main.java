@@ -1,5 +1,6 @@
 
 import java.util.*;
+import java.sql.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -16,7 +17,8 @@ class MinecraftBot {
     private DatabaseManager database;
     
     public MinecraftBot() {
-        this.pathFinder = new PathFinder();
+        this.worldScanner = new WorldScanner();
+        this.pathFinder = new PathFinder(worldScanner);
         this.inventory = new Inventory();
         this.worldScanner = new WorldScanner();
         this.currentPosition = new Position(0, 64, 0); // Default spawn height
@@ -168,6 +170,7 @@ class Inventory {
 }
 
 class PathFinder {
+    private WorldScanner worldScanner;
     private static final int[][] DIRECTIONS = {
         {1, 0, 0}, {-1, 0, 0},  // x axis
         {0, 1, 0}, {0, -1, 0},  // y axis
@@ -176,6 +179,10 @@ class PathFinder {
         {0, 1, 1}, {0, 1, -1}   // diagonal movement
     };
     
+    public PathFinder(WorldScanner worldScanner) {
+        this.worldScanner = worldScanner;
+    }
+
     public List<Position> findPath(Position start, Position goal) {
         return findPathInternal(start, goal, false);
     }
@@ -249,4 +256,49 @@ class PathFinder {
     }
 }
 
-// Keep existing Position and Node classes as they are
+class Position {
+    int x, y, z;
+    
+    public Position(int x, int y, int z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+    
+    public double distanceTo(Position other) {
+        return Math.sqrt(
+            Math.pow(x - other.x, 2) +
+            Math.pow(y - other.y, 2) +
+            Math.pow(z - other.z, 2)
+        );
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Position)) return false;
+        Position other = (Position) obj;
+        return x == other.x && y == other.y && z == other.z;
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z);
+    }
+}
+
+class Node implements Comparable<Node> {
+    Position pos;
+    double gScore;
+    double fScore;
+    
+    public Node(Position pos, double gScore, double fScore) {
+        this.pos = pos;
+        this.gScore = gScore;
+        this.fScore = fScore;
+    }
+    
+    @Override
+    public int compareTo(Node other) {
+        return Double.compare(this.fScore, other.fScore);
+    }
+}
