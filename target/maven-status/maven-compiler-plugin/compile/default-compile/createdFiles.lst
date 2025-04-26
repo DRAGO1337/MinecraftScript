@@ -1,0 +1,10 @@
+Node.class
+Main.class
+Position.class
+Block.class
+WorldScanner.class
+MinecraftBot.class
+PathFinder.class
+Inventory.class
+DatabaseManager.class
+SafetyChecker.class
