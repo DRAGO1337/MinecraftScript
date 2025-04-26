@@ -1,4 +1,6 @@
 
+package com.minecraft.bot;
+
 import java.util.*;
 
 public class SafetyChecker {

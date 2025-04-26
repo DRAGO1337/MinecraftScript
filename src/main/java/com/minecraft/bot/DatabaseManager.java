@@ -1,3 +1,5 @@
+package com.minecraft.bot;
+
 import java.sql.*;
 import java.util.*;
 
