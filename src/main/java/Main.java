@@ -13,12 +13,14 @@ class MinecraftBot {
     private Inventory inventory;
     private WorldScanner worldScanner;
     private Position currentPosition;
+    private DatabaseManager database;
     
     public MinecraftBot() {
         this.pathFinder = new PathFinder();
         this.inventory = new Inventory();
         this.worldScanner = new WorldScanner();
         this.currentPosition = new Position(0, 64, 0); // Default spawn height
+        this.database = new DatabaseManager();
     }
     
     public void processCommand(String command) {
