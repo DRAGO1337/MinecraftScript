@@ -89,39 +89,50 @@ class Block {
 
 class WorldScanner {
     private Map<String, List<Position>> resourceLocations;
+    private Map<Position, Block> worldBlocks;
     
     public WorldScanner() {
         this.resourceLocations = new HashMap<>();
+        this.worldBlocks = new HashMap<>();
         initializeResources();
     }
     
     private void initializeResources() {
-        // Simulate resource locations
-        addResource("diamond", new Position(10, 12, 15));
-        addResource("iron", new Position(5, 40, 8));
-        addResource("gold", new Position(20, 30, 25));
+        // Simulate resource locations and world blocks
+        addBlock(new Block(new Position(10, 12, 15), "diamond", true));
+        addBlock(new Block(new Position(5, 40, 8), "iron", true));
+        addBlock(new Block(new Position(20, 30, 25), "gold", true));
+        
+        // Add some dangerous blocks for testing
+        addBlock(new Block(new Position(15, 12, 15), "lava", false));
+        addBlock(new Block(new Position(8, 40, 8), "magma_block", true));
     }
     
-    private void addResource(String type, Position pos) {
-        resourceLocations.computeIfAbsent(type, k -> new ArrayList<>()).add(pos);
+    private void addBlock(Block block) {
+        worldBlocks.put(block.position, block);
+        resourceLocations.computeIfAbsent(block.type, k -> new ArrayList<>()).add(block.position);
+    }
+    
+    public Block getBlockAt(Position pos) {
+        return worldBlocks.get(pos);
     }
     
     public Block findNearestBlock(Position current, String type) {
         List<Position> locations = resourceLocations.get(type);
         if (locations == null || locations.isEmpty()) return null;
         
-        Position nearest = locations.get(0);
-        double minDistance = current.distanceTo(nearest);
+        Position nearest = null;
+        double minDistance = Double.MAX_VALUE;
         
         for (Position pos : locations) {
             double distance = current.distanceTo(pos);
-            if (distance < minDistance) {
+            if (distance < minDistance && SafetyChecker.isSafePosition(pos, this)) {
                 minDistance = distance;
                 nearest = pos;
             }
         }
         
-        return new Block(nearest, type, true);
+        return nearest != null ? worldBlocks.get(nearest) : null;
     }
 }
 
@@ -217,8 +228,7 @@ class PathFinder {
     }
     
     private boolean isSafePosition(Position pos) {
-        // Implement safety checks (lava, falls, etc.)
-        return pos.y >= 0 && pos.y <= 256;
+        return pos.y >= 0 && pos.y <= 256 && SafetyChecker.isSafePosition(pos, worldScanner);
     }
     
     private double getMovementCost(int[] direction) {
